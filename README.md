@@ -1,4 +1,4 @@
-Pluggable Polling Python Processing Process
+Pluggable Polling Python Processing Program
 ===========================================
 
 A python daemon to run headless processing jobs on a grid of processing
@@ -30,7 +30,7 @@ While still at an early stage of development, check
 "### CONFIG PARAMATERS" section in pppppd.py and jobs/ modules
 to configure for system specific paths etc.
 
-A job-handling module foreach job type is defined in jobs/
+A job-handling module for each job type is defined in jobs/
 (for new jobs, update RUN dict in pppppd.py and jobs/__init__.py)
 
 

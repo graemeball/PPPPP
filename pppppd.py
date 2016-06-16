@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 """
-PPPPP: Pluggable Polling Python Processing Process
+PPPPP: Pluggable Polling Python Processing Program
 
-Main pppppd.py script for running the polling daemon process.
+Main pppppd.py script for running the polling daemon.
 Run without args for usage info.
 
 """
