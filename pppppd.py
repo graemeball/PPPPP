@@ -22,7 +22,7 @@ import jobs
 
 ### CONFIG PARAMETERS
 JOBS_AT = '/ngom/*/*.job.json'
-SPIN_DELAY = 10  # seconds, TODO: increase after testing
+POLL_DELAY = 10  # seconds, TODO: increase after testing
 
 # define job handler in dict below for each job type
 RUN = {'core2_decon.job': jobs.core2.run}
@@ -55,8 +55,8 @@ def main():
                 started_jobs.append(jobfile_path)
                 print "wrote %s" % results
             else:
-                time.sleep(SPIN_DELAY)
-                print "no new jobs (wait), started_jobs: %s" % str(started_jobs)
+                print "no new jobs (sleep %ds), started_jobs: %s" % (POLL_DELAY, str(started_jobs))
+                time.sleep(POLL_DELAY)
 
         except KeyError:
             print "unknown job type, %s" % jobtype

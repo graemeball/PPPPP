@@ -14,20 +14,24 @@ import json
 import numpy as np
 from collections import OrderedDict
 import subprocess
+import time
+import shutil
 
 
 ### CONFIG PARAMETERS
 PRIISM_SETUP = '/Users/gball/build/priism-4.2.9/Priism_setup.sh'
 OTF_PATH = '/Users/gball/Documents/TestData/Deconvolution/otf'
+FAKE_DELAY = 20  # sleep this many seconds when run in fake mode
 
 
 def run(job, mode):
     """Run a core2 decon job (Priism)"""
     results = []
-    if mode == "fake":
-        print "core2 decon job: %s" % str(job)
-    else:
-        for inp in job['inputs']:
+    for inp in job['inputs']:
+        if mode == "fake":
+            print "fake core2 decon job: %s" % str(job)
+            com, log, dv = fake_run(inp['path'])
+        else:
             try:
                 com, log, dv = generate_core2_com(
                     inp['path'],
@@ -35,18 +39,33 @@ def run(job, mode):
                     job['par.lamf'],
                     job['par.niter'])
                 exec_priism_com(com)
-                result = {}
-                result['result'] = dv
-                result['inputID'] = inp['imageID']
-                result['datasetID'] = inp['datasetID']
-                result['attachments'] = [com, log]
-                results.append(json.dumps(result) + "\n")
             except KeyError as ek:
                 print str(ek)
             except RuntimeError as er:
                 print str(er)
+        result = {}
+        result['result'] = dv
+        result['inputID'] = inp['imageID']
+        result['datasetID'] = inp['datasetID']
+        result['attachments'] = [com, log]
+        results.append(json.dumps(result) + "\n")
 
     return results
+
+
+def fake_run(inp_path):
+    """Fake processing by copying input, writing dummy com, log and sleeping"""
+    base = os.path.splitext(inp_path)[0]
+    com_path = base + "_ERD.com"
+    log_path = base + "_ERD.log"
+    decon_path = base + "_ERD.dv"
+    with open(com_path, 'w') as fc:
+        fc.write("# core2 decon dummy com file")
+    with open(log_path, 'w') as fl:
+        fl.write("# core2 decon dummy log file")
+    shutil.copy(inp_path, decon_path)
+    time.sleep(FAKE_DELAY)
+    return com_path, log_path, decon_path
 
 
 def generate_core2_com(path, alpha, lamf, niter):
