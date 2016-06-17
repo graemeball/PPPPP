@@ -41,18 +41,22 @@ def main():
             jobfile_path = get_next_job()
             if jobfile_path is not None and jobfile_path not in started_jobs:
                 print "new job: %s, started_jobs: %s" % (str(jobfile_path), str(started_jobs))
+                started_jobs.append(jobfile_path)
                 jobtype = os.path.splitext(os.path.split(jobfile_path)[-1])[0]
                 with open(jobfile_path) as f:
-                    job = json.load(f)
+                    jobs = json.load(f)
+                result_path = os.path.splitext(os.path.splitext(jobfile_path)[0])[0]
+                result_path += ".results.json"
+                results = []
                 # TODO: job queue / DB, scheduling & multiple jobs
                 # TODO: run jobs asynchronously
                 # TODO: distributed processing
-                results = RUN[jobtype](job, mode)
-                result_path = os.path.splitext(os.path.splitext(jobfile_path)[0])[0]
-                result_path += ".results.json"
                 with open(result_path, "w") as fr:
-                    fr.writelines(results)
-                started_jobs.append(jobfile_path)
+                    for job in split_jobs(jobs):
+                        result = RUN[jobtype](job, mode)
+                        result = json.dumps(result) + "\n"
+                        fr.write(result)
+                        results.append(result)
                 print "wrote %s" % results
             else:
                 print "no new jobs (sleep %ds), started_jobs: %s" % (POLL_DELAY, str(started_jobs))
@@ -78,12 +82,29 @@ def get_next_job():
         return None
 
 
+def split_jobs(jobs):
+    """Return a list of single job dicts from a multi-job task."""
+    inputs = jobs.pop('inputs')  # 'jobs' just has the paramters now
+    joblist = []
+    for inp in inputs:
+        job = dict(jobs)
+        job['input'] = inp
+        joblist.append(job)
+    return joblist
+
+
 ## test functions
 
 def _test_get_next_job():
     print get_next_job()
 
+def _test_split_jobs():
+    with open('jobs/test_data/core2_decon.job.json') as f:
+        jobs = json.load(f)
+    print str(split_jobs(jobs))
+
 
 if __name__ == '__main__':
     #_test_get_next_job()
+    #_test_split_jobs()
     main()

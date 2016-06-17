@@ -10,7 +10,6 @@ __license__ = "GPL v3"  # http://www.gnu.org/licenses/gpl.txt
 
 
 import os
-import json
 import numpy as np
 from collections import OrderedDict
 import subprocess
@@ -26,31 +25,28 @@ FAKE_DELAY = 20  # sleep this many seconds when run in fake mode
 
 def run(job, mode):
     """Run a core2 decon job (Priism)"""
-    results = []
-    for inp in job['inputs']:
-        if mode == "fake":
-            print "fake core2 decon job: %s" % str(job)
-            com, log, dv = fake_run(inp['path'])
-        else:
-            try:
-                com, log, dv = generate_core2_com(
-                    inp['path'],
-                    job['par.alpha'],
-                    job['par.lamf'],
-                    job['par.niter'])
-                exec_priism_com(com)
-            except KeyError as ek:
-                print str(ek)
-            except RuntimeError as er:
-                print str(er)
-        result = {}
-        result['result'] = dv
-        result['inputID'] = inp['imageID']
-        result['datasetID'] = inp['datasetID']
-        result['attachments'] = [com, log]
-        results.append(json.dumps(result) + "\n")
-
-    return results
+    inp = job['input']
+    if mode == "fake":
+        print "fake core2 decon job: %s" % str(job)
+        com, log, dv = fake_run(inp['path'])
+    else:
+        try:
+            com, log, dv = generate_core2_com(
+                inp['path'],
+                job['par.alpha'],
+                job['par.lamf'],
+                job['par.niter'])
+            exec_priism_com(com)
+        except KeyError as ek:
+            print str(ek)
+        except RuntimeError as er:
+            print str(er)
+    result = {}
+    result['result'] = dv
+    result['inputID'] = inp['imageID']
+    result['datasetID'] = inp['datasetID']
+    result['attachments'] = [com, log]
+    return result
 
 
 def fake_run(inp_path):
