@@ -61,6 +61,9 @@ def main():
         except KeyError:
             print "unknown job type, %s" % jobtype
 
+        except IOError as e:
+            print "IOError, abandon job!\n %s" % str(e)
+
         except KeyboardInterrupt:
             print "\n\nShutting down PPPPP daemon!\n"
             sys.exit()
