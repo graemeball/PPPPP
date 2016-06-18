@@ -27,11 +27,12 @@ Developed using python 2.7, and requires 2.6 for base functionality
 (2.6 requires altered imports for some jobs).
 
 While still at an early stage of development, check
-"### CONFIG PARAMATERS" section in pppppd.py and jobs/ modules
+"### CONFIG PARAMATERS" section in pppppd.py and commands/ modules
 to configure for system specific paths etc.
 
-A job-handling module for each job type is defined in jobs/
-(for new jobs, update RUN dict in pppppd.py and jobs/__init__.py)
+A job-handling module for each job type is defined in commands/
+(for new job types, update RUN dict in pppppd.py and
+commands/`__init__.py`)
 
 
 Usage

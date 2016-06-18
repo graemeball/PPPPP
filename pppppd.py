@@ -18,14 +18,14 @@ import os
 import json
 import time
 import glob
-import jobs
+import commands
 
 ### CONFIG PARAMETERS
 JOBS_AT = '/ngom/*/*.job.json'
 POLL_DELAY = 10  # seconds, TODO: increase after testing
 
 # define job handler in dict below for each job type
-RUN = {'core2_decon.job': jobs.core2.run}
+RUN = {'core2_decon.job': commands.core2.run}
 
 
 def main():
@@ -99,7 +99,7 @@ def _test_get_next_job():
     print get_next_job()
 
 def _test_split_jobs():
-    with open('jobs/test_data/core2_decon.job.json') as f:
+    with open('commands/test_data/core2_decon.job.json') as f:
         jobs = json.load(f)
     print str(split_jobs(jobs))
 
