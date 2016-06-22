@@ -21,8 +21,8 @@ import glob
 import commands
 
 ### CONFIG PARAMETERS
-JOB_LOCATION = '/ngom/'
-JOB_GLOB = os.path.join(JOB_LOCATION, '*/*.job.json')
+JOB_DIR = '/ngom/'
+JOB_GLOB = os.path.join(JOB_DIR, '*/*.jobs')
 POLL_DELAY = 10  # seconds, TODO: increase after testing
 
 # define job handler in dict below for each job type
@@ -44,22 +44,23 @@ def main():
                 print "new job: %s, started_jobs: %s" % (str(jobfile_path),
                                                          str(started_jobs))
                 started_jobs.append(jobfile_path)
-                jobtype = os.path.basename(jobfile_path).split('.')[0]
+                #jobtype = os.path.basename(jobfile_path).split('.')[0]
                 with open(jobfile_path) as f:
-                    jobs = json.load(f)
-                result_path = os.path.dirname(jobfile_path)
-                result_filename = jobtype + ".results.json"
-                result_path = os.path.join(result_path, result_filename)
+                    jobs = [json.loads(l.rstrip()) for l in f.readlines()]
+                result_path = os.path.splitext(jobfile_path)[0] + ".results"
                 results = []
-                # TODO: job queue / DB, scheduling & multiple jobs
-                # TODO: run jobs asynchronously
-                # TODO: distributed processing
                 with open(result_path, "w") as fr:
-                    for job in split_jobs(jobs):
-                        result = RUN[jobtype](job, mode, JOB_LOCATION)
-                        result = json.dumps(result) + "\n"
-                        fr.write(result)
-                        results.append(result)
+                    # TODO: job queue / DB, scheduling
+                    # TODO: run jobs in parallel
+                    # TODO: distributed processing
+                    for job in jobs:
+                        # for now, take only first command in list for each job
+                        for com in [job[0]]:
+                            command = com['command']
+                            result = RUN[command](com, mode, JOB_DIR)
+                            result = json.dumps(result) + "\n"
+                            fr.write(result)
+                            results.append(result)
                 print "wrote results to %s:\n%s" % (result_path, results)
             else:
                 print "no new jobs (sleep %ds), started_jobs: %s" % \
@@ -67,7 +68,7 @@ def main():
                 time.sleep(POLL_DELAY)
 
         except KeyError:
-            print "unknown job type, %s" % jobtype
+            print "unknown command, %s" % command
 
         except IOError as e:
             print "IOError, abandon job!\n %s" % str(e)
@@ -86,30 +87,12 @@ def get_next_job():
         return None
 
 
-def split_jobs(jobs):
-    """Return a list of single job dicts from a multi-job task."""
-    inputs = jobs.pop('inputs')  # 'jobs' just has the paramters now
-    joblist = []
-    for inp in inputs:
-        job = dict(jobs)
-        job['input'] = inp
-        joblist.append(job)
-    return joblist
-
-
 ## test functions
 
 def _test_get_next_job():
     print get_next_job()
 
 
-def _test_split_jobs():
-    with open('commands/test_data/core2_decon.job.json') as f:
-        jobs = json.load(f)
-    print str(split_jobs(jobs))
-
-
 if __name__ == '__main__':
     #_test_get_next_job()
-    #_test_split_jobs()
     main()

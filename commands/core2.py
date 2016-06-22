@@ -25,7 +25,7 @@ FAKE_DELAY = 20  # sleep this many seconds when run in fake mode
 
 def run(job, mode, local_path):
     """Run a core2 decon job (Priism)"""
-    inp = job['input']
+    inp = job['inputs'][0]  # 1st input (only 1 needed!)
     if mode == "fake":
         print "fake core2 decon job: %s" % str(job)
         com, log, dv = fake_run(inp['path'])
@@ -42,10 +42,10 @@ def run(job, mode, local_path):
         except RuntimeError as er:
             print str(er)
     result = {}
-    result['result'] = dv
+    result['results'] = [dv, com, log]
     result['inputID'] = inp['imageID']
     result['datasetID'] = inp['datasetID']
-    result['attachments'] = [com, log]
+    #result['attachments'] = [com, log]
     return result
 
 
