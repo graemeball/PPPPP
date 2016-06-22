@@ -21,8 +21,9 @@ import glob
 import commands
 
 ### CONFIG PARAMETERS
-JOB_DIR = '/ngom/'
-JOB_GLOB = os.path.join(JOB_DIR, '*/*.jobs')
+LOCAL_JOB_DIR = '/ngom'
+REMOTE_JOB_DIR = '/ngom'
+JOB_GLOB = os.path.join(LOCAL_JOB_DIR, '*/*.jobs')
 POLL_DELAY = 10  # seconds, TODO: increase after testing
 
 # define job handler in dict below for each job type
@@ -44,7 +45,7 @@ def main():
                 print "new job: %s, started_jobs: %s" % (str(jobfile_path),
                                                          str(started_jobs))
                 started_jobs.append(jobfile_path)
-                #jobtype = os.path.basename(jobfile_path).split('.')[0]
+                jobfile_path = remote_to_local_path(jobfile_path)
                 with open(jobfile_path) as f:
                     jobs = [json.loads(l.rstrip()) for l in f.readlines()]
                 result_path = os.path.splitext(jobfile_path)[0] + ".results"
@@ -57,7 +58,10 @@ def main():
                         # for now, take only first command in list for each job
                         for com in [job[0]]:
                             command = com['command']
-                            result = RUN[command](com, mode, JOB_DIR)
+                            for inp in com['inputs']:
+                                inp['path'] = remote_to_local_path(inp['path'])
+                            result = RUN[command](com, mode)
+                            result['results'] = [local_to_remote_path(r) for r in result['results']]
                             result = json.dumps(result) + "\n"
                             fr.write(result)
                             results.append(result)
@@ -69,9 +73,11 @@ def main():
 
         except KeyError:
             print "unknown command, %s" % command
+            # TODO: signal in results that command unknown
 
         except IOError as e:
             print "IOError, abandon job!\n %s" % str(e)
+            # TODO: signal in results that IOError has occurred
 
         except KeyboardInterrupt:
             print "\n\nShutting down PPPPP daemon!\n"
@@ -87,12 +93,36 @@ def get_next_job():
         return None
 
 
+def remote_to_local_path(fullpath):
+    path, filename = os.path.split(fullpath)
+    jobfolder = os.path.split(path)[-1]
+    return os.path.join(LOCAL_JOB_DIR, jobfolder, filename)
+
+
+def local_to_remote_path(fullpath):
+    path, filename = os.path.split(fullpath)
+    jobfolder = os.path.split(path)[-1]
+    return os.path.join(REMOTE_JOB_DIR, jobfolder, filename)
+
+
 ## test functions
 
 def _test_get_next_job():
     print get_next_job()
 
+def _test_remote_to_local_path():
+    remote_path = '/Volumes/dif/gball/root_2016-06-22_12-26-45_CPY/BPAE_514_001_ID16.dv'
+    print "\ntesting remote_to_local_path(%s):" % remote_path
+    print remote_to_local_path(remote_path)
+
+def _test_local_to_remote_path():
+    local_path = '/dif/users/gball/root_2016-06-22_12-26-45_CPY/BPAE_514_001_ID16.dv'
+    print "\ntesting local_to_remote_path(%s):" % local_path
+    print local_to_remote_path(local_path)
+
 
 if __name__ == '__main__':
     #_test_get_next_job()
+    #_test_remote_to_local_path()
+    #_test_local_to_remote_path()
     main()

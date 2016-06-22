@@ -23,7 +23,7 @@ OTF_PATH = '/Users/gball/Documents/TestData/Deconvolution/otf'
 FAKE_DELAY = 20  # sleep this many seconds when run in fake mode
 
 
-def run(job, mode, local_path):
+def run(job, mode):
     """Run a core2 decon job (Priism)"""
     inp = job['inputs'][0]  # 1st input (only 1 needed!)
     if mode == "fake":
