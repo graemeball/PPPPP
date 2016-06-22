@@ -14,9 +14,9 @@ Planned features, with current implementation status (+) / (-):
 
 * poll shared FS for new jobs (+)
 * maintain an SQL-based job queue (-)
-* run jobs asynchronously (-)
 * fair scheduling mechanism, with job pausing (-)
 * run jobs locally (+)
+* run parallel jobs (-)
 * run jobs remotely via SSH (-)
 
 
@@ -30,8 +30,8 @@ While still at an early stage of development, check
 "### CONFIG PARAMATERS" section in pppppd.py and commands/ modules
 to configure for system specific paths etc.
 
-A job-handling module for each job type is defined in commands/
-(for new job types, update RUN dict in pppppd.py and
+A module to handle each command is defined in commands/
+(for new command, update RUN dict in pppppd.py and
 commands/`__init__.py`)
 
 
@@ -40,9 +40,10 @@ Usage
 
 Run "pppppd.py" with no parameters for usage info.
 
-Note that running "pppppd.py fake" allows .job.json files to be
-"processed" by copying input and writing dummy output files to check
-job ingestion/queueing and external handling of results without
+Note that running "pppppd.py fake" allows .jobs files to be
+"processed" by copying the input image to the primary output image
+and writing dummy secondary output files to check job 
+ingestion/queueing and external handling of results without
 needing to set up processing applications or generating real
-processing load (instead, fake jobs sleep as defined by FAKE_DELAY).
+processing load (instead, fake jobs sleep as defined by `FAKE_DELAY`).
 
