@@ -31,17 +31,20 @@ RUN = {'core2_decon': commands.core2.run}
 
 
 def main():
-    modes = ["process", "fake"]
+    modes = ["fake", "local", "grid"]
     if len(sys.argv) != 2 or sys.argv[1] not in modes:
         print "\n\nUsage: %s [mode]   # valid modes: %s\n" % \
             (sys.argv[0], ", ".join(modes))
         return
     mode = sys.argv[1]
+    if mode == "grid":
+        print "grid processing not implemented!"  # TODO
+        sys.exit()
     started_jobs = []
     while True:
         try:
-            jobfile_path = get_next_job()
-            if jobfile_path is not None and jobfile_path not in started_jobs:
+            jobfile_path = get_next_job(started_jobs)
+            if jobfile_path is not None:
                 print "new job: %s, started_jobs: %s" % (str(jobfile_path),
                                                          str(started_jobs))
                 started_jobs.append(jobfile_path)
@@ -84,10 +87,11 @@ def main():
             sys.exit()
 
 
-def get_next_job():
+def get_next_job(started_jobs):
     """Return first job file we find, since we run 1-at-a-time for now"""
     jobs = glob.glob(JOB_GLOB)
     if len(jobs) > 0:
+        # FIXME: return first job *not* in started_jobs
         return jobs[0]
     else:
         return None
