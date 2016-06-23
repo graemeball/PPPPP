@@ -88,11 +88,12 @@ def main():
 
 
 def get_next_job(started_jobs):
-    """Return first job file we find, since we run 1-at-a-time for now"""
+    """Return first job file found that has not already been started"""
     jobs = glob.glob(JOB_GLOB)
     if len(jobs) > 0:
-        # FIXME: return first job *not* in started_jobs
-        return jobs[0]
+        for j in jobs:
+            if j not in started_jobs:
+                return j
     else:
         return None
 
@@ -112,7 +113,20 @@ def local_to_remote_path(fullpath):
 ## test functions
 
 def _test_get_next_job():
-    print get_next_job()
+    import shutil
+    dirs = [os.path.join(LOCAL_JOB_DIR, "test%d" % n) for n in range(3)]
+    for d in dirs:
+        os.mkdir(d)
+        with open(os.path.join(d, "test_job.jobs"), 'w+') as f:
+            f.write("[]")
+    started_jobs = []
+    for i in range(len(dirs)):
+        jobfile_path = get_next_job(started_jobs)
+        print "get_next_job call %d returned %s" % (i, jobfile_path)
+        started_jobs.append(jobfile_path)
+    for d in dirs:
+        shutil.rmtree(d)
+
 
 def _test_remote_to_local_path():
     remote_path = '/Volumes/dif/gball/root_2016-06-22_12-26-45_CPY/BPAE_514_001_ID16.dv'
