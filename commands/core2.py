@@ -25,24 +25,33 @@ FAKE_DELAY = 20  # sleep this many seconds when run in fake mode
 
 def run(job, mode):
     """Run a core2 decon job (Priism)"""
-    inp = job['inputs'][0]  # 1st input (only 1 needed!)
-    if mode == "fake":
-        print "fake core2 decon job: %s" % str(job)
-        com, log, dv = fake_run(inp['path'])
+    result = dict(job)  # result dict preserves all input job info
+
+    if mode == "fail":
+        result['fail'] = "ppppp running in fail mode -- all jobs fail!"
+        result['results'] = []
     else:
-        try:
-            com, log, dv = generate_core2_com(
-                inp['path'],
-                job['par.alpha'],
-                job['par.lamf'],
-                job['par.niter'])
-            exec_priism_com(com)
-        except KeyError as ek:
-            print str(ek)
-        except RuntimeError as er:
-            print str(er)
-    result = dict(inp)  # result dict preserves all input info
-    result['results'] = [dv, com, log]
+        inp = job['inputs'][0]  # 1st input (only 1 needed!)
+        if mode == "fake":
+            print "fake core2 decon job: %s" % str(job)
+            com, log, dv = fake_run(inp['path'])
+        else:
+            try:
+                com, log, dv = generate_core2_com(
+                    inp['path'],
+                    job['par.alpha'],
+                    job['par.lamf'],
+                    job['par.niter'])
+                exec_priism_com(com)
+            except KeyError as ek:
+                print str(ek)
+            except RuntimeError as er:
+                print str(er)
+        result['results'] = [dv, com, log]
+
+    if 'fail' in result:
+        print "failed core2 decon job: %s" % str(job)
+
     return result
 
 
@@ -59,6 +68,10 @@ def fake_run(inp_path):
     shutil.copy(inp_path, decon_path)
     time.sleep(FAKE_DELAY)
     return com_path, log_path, decon_path
+
+def fail_run():
+    """Simulate failed processing: return empty 'results' and 'fail' message"""
+
 
 
 def generate_core2_com(path, alpha, lamf, niter):

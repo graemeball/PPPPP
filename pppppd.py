@@ -37,9 +37,6 @@ def main():
             (sys.argv[0], ", ".join(modes))
         return
     mode = sys.argv[1]
-    if mode == "fail":
-        print "\nfail mode not implemented!"  # TODO
-        sys.exit()
     if mode == "grid":
         print "\ngrid processing not implemented!"  # TODO
         sys.exit()
