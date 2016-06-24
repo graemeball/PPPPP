@@ -94,8 +94,7 @@ def get_next_job(started_jobs):
         for j in jobs:
             if j not in started_jobs:
                 return j
-    else:
-        return None
+    return None
 
 
 def remote_to_local_path(fullpath):
@@ -120,12 +119,15 @@ def _test_get_next_job():
         with open(os.path.join(d, "test_job.jobs"), 'w+') as f:
             f.write("[]")
     started_jobs = []
-    for i in range(len(dirs)):
+    for i in range(len(dirs) + 1):
         jobfile_path = get_next_job(started_jobs)
-        print "get_next_job call %d returned %s" % (i, jobfile_path)
+        print "get_next_job call %d returned %s" % (i, str(jobfile_path))
         started_jobs.append(jobfile_path)
     for d in dirs:
         shutil.rmtree(d)
+    nj = get_next_job(started_jobs)
+    print "final get_next_job() call with no test jobs returned %s" % nj
+
 
 
 def _test_remote_to_local_path():
