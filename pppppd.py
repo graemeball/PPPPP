@@ -31,14 +31,17 @@ RUN = {'core2_decon': commands.core2.run}
 
 
 def main():
-    modes = ["fake", "local", "grid"]
+    modes = ["fake", "fail", "local", "grid"]
     if len(sys.argv) != 2 or sys.argv[1] not in modes:
         print "\n\nUsage: %s [mode]   # valid modes: %s\n" % \
             (sys.argv[0], ", ".join(modes))
         return
     mode = sys.argv[1]
+    if mode == "fail":
+        print "\nfail mode not implemented!"  # TODO
+        sys.exit()
     if mode == "grid":
-        print "grid processing not implemented!"  # TODO
+        print "\ngrid processing not implemented!"  # TODO
         sys.exit()
     started_jobs = []
     while True:
