@@ -41,11 +41,8 @@ def run(job, mode):
             print str(ek)
         except RuntimeError as er:
             print str(er)
-    result = {}
+    result = dict(inp)  # result dict preserves all input info
     result['results'] = [dv, com, log]
-    result['inputID'] = inp['imageID']
-    result['datasetID'] = inp['datasetID']
-    #result['attachments'] = [com, log]
     return result
 
 
