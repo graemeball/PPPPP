@@ -18,6 +18,7 @@ import os
 import json
 import time
 import glob
+import shutil
 import commands
 
 ### CONFIG PARAMETERS
@@ -25,6 +26,7 @@ LOCAL_JOB_DIR = '/ngom'
 REMOTE_JOB_DIR = '/ngom'
 JOB_GLOB = os.path.join(LOCAL_JOB_DIR, '*/*.jobs')
 POLL_DELAY = 10  # seconds, TODO: increase after testing
+LASTALIVE = 'lastalive.txt'
 
 # define job handler in dict below for each job type
 RUN = {'core2_decon': commands.core2.run}
@@ -58,6 +60,7 @@ def main():
                     # TODO: run jobs in parallel
                     # TODO: distributed processing
                     for job in jobs:
+                        cleanup_if_dead(jobfile_path)
                         # for now, take only first command in list for each job
                         for com in [job[0]]:
                             command = com['command']
@@ -95,6 +98,20 @@ def get_next_job(started_jobs):
             if j not in started_jobs:
                 return j
     return None
+
+def cleanup_if_dead(jobpath):
+    """Remove job folder if lastalive time implies OMERO session dead"""
+    jobdir = os.path.split(jobpath)[0]
+    lastalive_path = os.path.join(jobdir, LASTALIVE)
+    with open(lastalive_path, "r") as f:
+        la_info = [float(l.rstrip()) for l in f.readlines()]
+    print "lastalive %fs (pulse %f)" % tuple(la_info)
+    if time.time() - la_info[0] > la_info[1]:
+        # perform basic sanity checks before removing!
+        if jobdir is not None and jobdir.startswith(LOCAL_JOB_DIR):
+            if os.path.exists(jobdir):
+                shutil.rmtree(jobdir)
+        raise IOError("OMERO session for %s died!" % jobpath)
 
 
 def remote_to_local_path(fullpath):
