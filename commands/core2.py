@@ -18,8 +18,8 @@ import shutil
 
 
 ### CONFIG PARAMETERS
-PRIISM_SETUP = '/Users/gball/build/priism-4.2.9/Priism_setup.sh'
-OTF_PATH = '/Users/gball/Documents/TestData/Deconvolution/otf'
+PRIISM_SETUP = '/usr/local/priism-4.2.9/Priism_setup.sh'
+OTF_PATH = '/usr/local/dv/otf'
 FAKE_DELAY = 20  # sleep this many seconds when run in fake mode
 
 
