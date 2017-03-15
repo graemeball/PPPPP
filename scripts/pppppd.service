@@ -1,0 +1,12 @@
+[Unit]
+Description=PPPPP daemon for job file processing
+After=multi-user.target
+
+[Service]
+Environment=SYSTEMD_LOG_LEVEL=debug
+ExecStart=/usr/bin/env python -u /opt/ppppp/pppppd.py local
+User=omero-x
+Group=omero
+
+[Install]
+WantedBy=multi-user.target

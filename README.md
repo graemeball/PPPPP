@@ -34,6 +34,15 @@ A module to handle each command is defined in commands/
 (for new command, update RUN dict in pppppd.py and
 commands/`__init__.py`)
 
+To run as a systemd service, copy the scripts/pppppd.service file
+to /lib/systemd/system/
+and then,
+
+    sudo systemctl enable pppppd.service
+    sudo systemctl start pppppd.service
+
+(to check log: sudo journalctl -u pppppd)
+
 
 Usage
 -----
@@ -46,4 +55,5 @@ and writing dummy secondary output files to check job
 ingestion/queueing and external handling of results without
 needing to set up processing applications or generating real
 processing load (instead, fake jobs sleep as defined by `FAKE_DELAY`).
+
 

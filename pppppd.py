@@ -110,7 +110,8 @@ def cleanup_if_dead(jobpath):
         # perform basic sanity checks before removing!
         if jobdir is not None and jobdir.startswith(LOCAL_JOB_DIR):
             if os.path.exists(jobdir):
-                shutil.rmtree(jobdir)
+                shutil.rmtree(jobdir, ignore_errors=True)  # sometimes fails
+                    
         raise IOError("OMERO session for %s died!" % jobpath)
 
 
